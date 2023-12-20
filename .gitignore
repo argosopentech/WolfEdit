@@ -1,0 +1,31 @@
+# Compiled files
+*.o
+*.obj
+*.elf
+*.exe
+*.app
+*.so
+*.dll
+
+# Qt-specific files
+Makefile
+*.pro.user
+*.pro.user.*
+*.qmake.stash
+
+# Generated files
+moc_*
+ui_*
+qrc_*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+*.log
+
+# Compiled Qt Designer files
+*.ui
+
+# Build directory
+/build/
+
