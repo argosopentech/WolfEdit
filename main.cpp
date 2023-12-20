@@ -1,40 +1,75 @@
 #include <QApplication>
 #include <QMainWindow>
 #include <QTextEdit>
-#include <QPushButton>
-#include <QVBoxLayout>
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
+#include <QFileDialog>
+#include <QTextStream>
+#include <QString>
+
+class TextEditor : public QMainWindow {
+    Q_OBJECT
+
+public:
+    TextEditor(QWidget *parent = nullptr) : QMainWindow(parent) {
+        textEdit = new QTextEdit(this);
+        setCentralWidget(textEdit);
+
+        createMenu();
+
+        setWindowTitle("WolfEdit");
+        resize(800, 600);
+    }
+
+private slots:
+    void openFile() {
+        QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Text Files (*.txt);;All Files (*)"));
+        if (!fileName.isEmpty()) {
+            QFile file(fileName);
+            if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                QTextStream in(&file);
+                textEdit->setPlainText(in.readAll());
+                file.close();
+            }
+        }
+    }
+
+    void saveFile() {
+        QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Text Files (*.txt);;All Files (*)"));
+        if (!fileName.isEmpty()) {
+            QFile file(fileName);
+            if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                QTextStream out(&file);
+                out << textEdit->toPlainText();
+                file.close();
+            }
+        }
+    }
+
+private:
+    QTextEdit *textEdit;
+
+    void createMenu() {
+        QMenu *fileMenu = menuBar()->addMenu(tr("File"));
+
+        QAction *openAction = new QAction(tr("Open"), this);
+        connect(openAction, &QAction::triggered, this, &TextEditor::openFile);
+        fileMenu->addAction(openAction);
+
+        QAction *saveAction = new QAction(tr("Save"), this);
+        connect(saveAction, &QAction::triggered, this, &TextEditor::saveFile);
+        fileMenu->addAction(saveAction);
+    }
+};
 
 int main(int argc, char *argv[]) {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
 
-    // Create the main window
-    QMainWindow mainWindow;
+    TextEditor editor;
+    editor.show();
 
-    // Create a central widget (e.g., QTextEdit)
-    QTextEdit *textEdit = new QTextEdit(&mainWindow);
-
-    // Create a button
-    QPushButton *button = new QPushButton("Click me", &mainWindow);
-
-    // Create a vertical layout and add the widgets
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget(textEdit);
-    layout->addWidget(button);
-
-    // Set the layout for the central widget
-    QWidget *centralWidget = new QWidget(&mainWindow);
-    centralWidget->setLayout(layout);
-
-    // Set the central widget for the main window
-    mainWindow.setCentralWidget(centralWidget);
-
-    // Connect button click signal to a custom slot or function
-    // QObject::connect(button, SIGNAL(clicked()), yourCustomSlotOrFunction);
-
-    // Set the main window properties
-    mainWindow.setWindowTitle("WolfEdit");
-    mainWindow.show();
-
-    return a.exec();
+    return app.exec();
 }
 
+#include "main.moc"
