@@ -9,6 +9,7 @@
 #include <QString>
 #include <QTabWidget>
 #include <QFileInfo>
+#include <QCloseEvent>
 #include <QMessageBox>
 
 class TextEditor : public QMainWindow {
@@ -38,6 +39,38 @@ public:
     QTabWidget* getTabWidget() const {
         return tabWidget;
     }
+
+    protected:
+    void closeEvent(QCloseEvent *event) override {
+        // Iterate through all tabs and check for unsaved changes
+        for (int i = 0; i < tabWidget->count(); ++i) {
+            QTextEdit *textEdit = qobject_cast<QTextEdit*>(tabWidget->widget(i));
+            if (textEdit && textEdit->document()->isModified()) {
+                tabWidget->setCurrentIndex(i);  // Set the current tab to the one with unsaved changes
+
+                // If there are unsaved changes, prompt the user
+                QMessageBox::StandardButton button = QMessageBox::warning(
+                    this, "Unsaved Changes",
+                    "There are unsaved changes. Do you want to save before closing?",
+                    QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+                    QMessageBox::Save
+                );
+
+                if (button == QMessageBox::Save) {
+                    // Save the changes and continue closing
+                    saveFile();
+                } else if (button == QMessageBox::Cancel) {
+                    // Cancel the close event
+                    event->ignore();
+                    return;
+                }
+            }
+        }
+
+        // Call the base class closeEvent to allow the event to be processed
+        QMainWindow::closeEvent(event);
+    }
+
 
 private slots:
     void openFile() {
@@ -101,12 +134,31 @@ private slots:
     }
 
     void closeTab(int index) {
-        QWidget *widget = tabWidget->widget(index);
-        if (widget) {
-            // Close the tab
-            tabWidget->removeTab(index);
-            delete widget;
+        QTextEdit *textEdit = qobject_cast<QTextEdit*>(tabWidget->widget(index));
+        if (textEdit && textEdit->document()->isModified()) {
+            // Set the current tab to the one with unsaved changes
+            tabWidget->setCurrentIndex(index);
+
+            // If there are unsaved changes, prompt the user
+            QMessageBox::StandardButton button = QMessageBox::warning(
+                this, "Unsaved Changes",
+                "There are unsaved changes. Do you want to save before closing?",
+                QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+                QMessageBox::Save
+            );
+
+            if (button == QMessageBox::Save) {
+                // Save the changes and continue closing the tab
+                saveFile();
+            } else if (button == QMessageBox::Cancel) {
+                // Cancel closing the tab
+                return;
+            }
         }
+
+        // Close the tab
+        tabWidget->removeTab(index);
+        delete textEdit;
     }
 
 
