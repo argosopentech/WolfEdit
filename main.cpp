@@ -9,6 +9,8 @@
 #include <QString>
 #include <QTabWidget>
 #include <QFileInfo>
+#include <QMessageBox>
+
 
 class TextEditor : public QMainWindow {
     Q_OBJECT
@@ -113,6 +115,21 @@ private:
         QAction *saveAsAction = new QAction(tr("Save As"), this);
         connect(saveAsAction, &QAction::triggered, this, &TextEditor::saveFileAs);
         fileMenu->addAction(saveAsAction);
+
+        // Add an "About" action
+        QAction *aboutAction = new QAction(tr("About"), this);
+        connect(aboutAction, &QAction::triggered, this, &TextEditor::showAboutDialog);
+        menuBar()->addAction(aboutAction);
+    }
+
+    // Add this function to handle the "About" action
+    void showAboutDialog() {
+        QMessageBox::about(this, tr("About WolfEdit"),
+                           tr("WolfEdit is a simple text editor.\n\n"
+                              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+                              "Praesent nec tellus id mi vehicula aliquet nec id ante. "
+                              "Quisque euismod, justo ut luctus dignissim, est diam suscipit orci, "
+                              "quis facilisis tortor risus id sapien."));
     }
 
     void addTab(QTextEdit* textEdit, const QString& filePath) {
