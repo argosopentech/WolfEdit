@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=WolfEdit
+Comment=A simple text editor
+Exec=/usr/local/bin/WolfEdit
+#Icon=/path/to/your/icon.png  # Replace with the actual path to the icon file
+Type=Application
+Categories=Utility;TextEditor;
+
