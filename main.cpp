@@ -11,7 +11,6 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
-
 class TextEditor : public QMainWindow {
     Q_OBJECT
 
@@ -25,9 +24,16 @@ public:
         setWindowTitle("WolfEdit");
         resize(800, 600);
 
+        // Enable closable tabs
+        tabWidget->setTabsClosable(true);
+
+        // Connect tabCloseRequested signal to a slot for handling tab closing
+        connect(tabWidget, &QTabWidget::tabCloseRequested, this, &TextEditor::closeTab);
+
         // Add an initial empty tab
         addEmptyTab();
     }
+
 
     QTabWidget* getTabWidget() const {
         return tabWidget;
@@ -93,6 +99,16 @@ private slots:
         QTextEdit *textEdit = new QTextEdit(this);
         addTab(textEdit, "Untitled");
     }
+
+    void closeTab(int index) {
+        QWidget *widget = tabWidget->widget(index);
+        if (widget) {
+            // Close the tab
+            tabWidget->removeTab(index);
+            delete widget;
+        }
+    }
+
 
 private:
     QTabWidget *tabWidget;
