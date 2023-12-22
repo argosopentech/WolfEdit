@@ -63,11 +63,25 @@ private slots:
                     tabWidget->setTabToolTip(tabWidget->currentIndex(), currentFilePath);
                 }
 
-                QFile file(currentFilePath);
-                if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                    QTextStream out(&file);
-                    out << currentTextEdit->toPlainText();
-                    file.close();
+                saveFileWithDialog(currentTextEdit, currentFilePath);
+            }
+        }
+    }
+
+    void saveFileAs() {
+        if (tabWidget->count() > 0) {
+            QTextEdit *currentTextEdit = qobject_cast<QTextEdit*>(tabWidget->currentWidget());
+            if (currentTextEdit) {
+                QString currentFilePath = tabWidget->tabToolTip(tabWidget->currentIndex());
+
+                // Ask for a new file name
+                QString newFilePath = QFileDialog::getSaveFileName(this, tr("Save File As"), "", tr("Text Files (*.txt);;All Files (*)"));
+                if (!newFilePath.isEmpty()) {
+                    // Update the tab title and tooltip
+                    tabWidget->setTabText(tabWidget->currentIndex(), QFileInfo(newFilePath).fileName());
+                    tabWidget->setTabToolTip(tabWidget->currentIndex(), newFilePath);
+
+                    saveFileWithDialog(currentTextEdit, newFilePath);
                 }
             }
         }
@@ -95,6 +109,10 @@ private:
         QAction *saveAction = new QAction(tr("Save"), this);
         connect(saveAction, &QAction::triggered, this, &TextEditor::saveFile);
         fileMenu->addAction(saveAction);
+
+        QAction *saveAsAction = new QAction(tr("Save As"), this);
+        connect(saveAsAction, &QAction::triggered, this, &TextEditor::saveFileAs);
+        fileMenu->addAction(saveAsAction);
     }
 
     void addTab(QTextEdit* textEdit, const QString& filePath) {
@@ -107,6 +125,15 @@ private:
         QTextEdit *textEdit = new QTextEdit(this);
         int tabIndex = tabWidget->addTab(textEdit, "Untitled");
         tabWidget->setTabToolTip(tabIndex, "Untitled");
+    }
+
+    void saveFileWithDialog(QTextEdit *textEdit, const QString &filePath) {
+        QFile file(filePath);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream out(&file);
+            out << textEdit->toPlainText();
+            file.close();
+        }
     }
 };
 
