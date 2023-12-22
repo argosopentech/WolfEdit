@@ -73,11 +73,20 @@ private slots:
         }
     }
 
+    void newFile() {
+        QTextEdit *textEdit = new QTextEdit(this);
+        addTab(textEdit, "Untitled");
+    }
+
 private:
     QTabWidget *tabWidget;
 
     void createMenu() {
         QMenu *fileMenu = menuBar()->addMenu(tr("File"));
+
+        QAction *newAction = new QAction(tr("New"), this);
+        connect(newAction, &QAction::triggered, this, &TextEditor::newFile);
+        fileMenu->addAction(newAction);
 
         QAction *openAction = new QAction(tr("Open"), this);
         connect(openAction, &QAction::triggered, this, &TextEditor::openFile);
