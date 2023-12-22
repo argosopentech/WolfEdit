@@ -8,6 +8,7 @@
 #include <QTextStream>
 #include <QString>
 #include <QTabWidget>
+#include <QFileInfo>
 
 class TextEditor : public QMainWindow {
     Q_OBJECT
@@ -21,6 +22,9 @@ public:
 
         setWindowTitle("WolfEdit");
         resize(800, 600);
+
+        // Add an initial empty tab
+        addEmptyTab();
     }
 
     QTabWidget* getTabWidget() const {
@@ -37,8 +41,7 @@ private slots:
                 textEdit->setPlainText(QString::fromUtf8(file.readAll()));
                 file.close();
 
-                int tabIndex = tabWidget->addTab(textEdit, QFileInfo(fileName).fileName());
-                tabWidget->setCurrentIndex(tabIndex);
+                addTab(textEdit, fileName);
             }
         }
     }
@@ -47,14 +50,24 @@ private slots:
         if (tabWidget->count() > 0) {
             QTextEdit *currentTextEdit = qobject_cast<QTextEdit*>(tabWidget->currentWidget());
             if (currentTextEdit) {
-                QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Text Files (*.txt);;All Files (*)"));
-                if (!fileName.isEmpty()) {
-                    QFile file(fileName);
-                    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                        QTextStream out(&file);
-                        out << currentTextEdit->toPlainText();
-                        file.close();
+                QString currentFilePath = tabWidget->tabToolTip(tabWidget->currentIndex());
+
+                if (currentFilePath.isEmpty() || currentFilePath == "Untitled") {
+                    // If the file is untitled or not saved before, ask for a new file name
+                    currentFilePath = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Text Files (*.txt);;All Files (*)"));
+                    if (currentFilePath.isEmpty()) {
+                        return;  // User canceled the save operation
                     }
+                    // Update the tab title and tooltip
+                    tabWidget->setTabText(tabWidget->currentIndex(), QFileInfo(currentFilePath).fileName());
+                    tabWidget->setTabToolTip(tabWidget->currentIndex(), currentFilePath);
+                }
+
+                QFile file(currentFilePath);
+                if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                    QTextStream out(&file);
+                    out << currentTextEdit->toPlainText();
+                    file.close();
                 }
             }
         }
@@ -74,45 +87,28 @@ private:
         connect(saveAction, &QAction::triggered, this, &TextEditor::saveFile);
         fileMenu->addAction(saveAction);
     }
+
+    void addTab(QTextEdit* textEdit, const QString& filePath) {
+        int tabIndex = tabWidget->addTab(textEdit, QFileInfo(filePath).fileName());
+        tabWidget->setTabToolTip(tabIndex, filePath);
+        tabWidget->setCurrentIndex(tabIndex);
+    }
+
+    void addEmptyTab() {
+        QTextEdit *textEdit = new QTextEdit(this);
+        int tabIndex = tabWidget->addTab(textEdit, "Untitled");
+        tabWidget->setTabToolTip(tabIndex, "Untitled");
+    }
 };
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     TextEditor editor;
-
-    // Check if command line arguments are provided
-    bool initialFilePathProvided  = false;
-    if (argc > 1) {
-        // Attempt to open the file specified in the command line argument
-        QString fileName = argv[1];
-        QFile file(fileName);
-        if (file.exists()) {
-            initialFilePathProvided = true;
-            if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                QTextEdit *textEdit = new QTextEdit(&editor);
-                textEdit->setPlainText(QString::fromUtf8(file.readAll()));
-                file.close();
-
-                // Add the initial tab with the content of the specified file
-                int tabIndex = editor.getTabWidget()->addTab(textEdit, QFileInfo(fileName).fileName());
-                editor.getTabWidget()->setCurrentIndex(tabIndex);
-            }
-        }
-    }
-
-    // If no initial file path was provided, add an empty tab
-    if (!initialFilePathProvided) {
-        QTextEdit *textEdit = new QTextEdit(&editor);
-        int tabIndex = editor.getTabWidget()->addTab(textEdit, "Untitled");
-        editor.getTabWidget()->setCurrentIndex(tabIndex);
-    }
-
     editor.show();
 
     return app.exec();
 }
-
 
 #include "main.moc"
 
