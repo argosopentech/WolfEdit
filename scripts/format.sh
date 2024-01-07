@@ -1,1 +1,1 @@
-indent *.cpp
+clang-format -i *.cpp
