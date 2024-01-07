@@ -12,11 +12,16 @@
 #include <QTextEdit>
 #include <QTextStream>
 
+class TabWidget : public QTabWidget {
+  Q_OBJECT public : TabWidget(QWidget *parent = nullptr) : QTabWidget(parent) {
+    setTabsClosable(true);
+  }
+};
+
 class TextEditor : public QMainWindow {
   Q_OBJECT public : TextEditor(QWidget *parent = nullptr)
       : QMainWindow(parent) {
-    tabWidget = new QTabWidget(this);
-    tabWidget->setTabsClosable(true);
+    tabWidget = new TabWidget(this);
     setCentralWidget(tabWidget);
     // Connect tabCloseRequested signal to a slot for handling tab closing
     connect(tabWidget, &QTabWidget::tabCloseRequested, this,
