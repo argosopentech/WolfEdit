@@ -2,7 +2,7 @@
 Name=WolfEdit
 Comment=A simple text editor
 Exec=/usr/local/bin/WolfEdit
-#Icon=/path/to/your/icon.png  # Replace with the actual path to the icon file
+Icon=/home/pj/Pictures/WolfEdit.png
 Type=Application
 Categories=Utility;TextEditor;
 

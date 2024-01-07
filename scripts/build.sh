@@ -1,0 +1,3 @@
+cd build
+qmake ..
+make
