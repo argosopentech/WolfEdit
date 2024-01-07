@@ -18,23 +18,18 @@ class TextEditor : public QMainWindow {
 public:
     TextEditor(QWidget *parent = nullptr) : QMainWindow(parent) {
         tabWidget = new QTabWidget(this);
+        tabWidget->setTabsClosable(true);
         setCentralWidget(tabWidget);
+        // Connect tabCloseRequested signal to a slot for handling tab closing
+        connect(tabWidget, &QTabWidget::tabCloseRequested, this, &TextEditor::closeTab);
+        // Add an initial empty tab
+        addEmptyTab();
 
         createMenu();
 
         setWindowTitle("WolfEdit");
         resize(800, 600);
-
-        // Enable closable tabs
-        tabWidget->setTabsClosable(true);
-
-        // Connect tabCloseRequested signal to a slot for handling tab closing
-        connect(tabWidget, &QTabWidget::tabCloseRequested, this, &TextEditor::closeTab);
-
-        // Add an initial empty tab
-        addEmptyTab();
     }
-
 
     QTabWidget* getTabWidget() const {
         return tabWidget;
@@ -43,7 +38,7 @@ public:
     protected:
     void closeEvent(QCloseEvent *event) override {
         // Iterate through all tabs and check for unsaved changes
-        for (int i = 0; i < tabWidget->count(); ++i) {
+        for (int i = 0; i < tabWidget->count(); i++) {
             QTextEdit *textEdit = qobject_cast<QTextEdit*>(tabWidget->widget(i));
             if (textEdit && textEdit->document()->isModified()) {
                 tabWidget->setCurrentIndex(i);  // Set the current tab to the one with unsaved changes
@@ -74,7 +69,7 @@ public:
 
 private slots:
     void openFile() {
-        QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("Text Files (*.txt);;All Files (*)"));
+        QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "", tr("All Files (*)"));
         if (!fileName.isEmpty()) {
             QFile file(fileName);
             if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
