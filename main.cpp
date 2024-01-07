@@ -16,6 +16,14 @@ class TabWidget : public QTabWidget {
   Q_OBJECT public : TabWidget(QWidget *parent = nullptr) : QTabWidget(parent) {
     setTabsClosable(true);
   }
+
+  QTextEdit *getCurrentTextEdit() const {
+    return qobject_cast<QTextEdit *>(currentWidget());
+  }
+
+  QTextEdit *getTextEdit(int index) const {
+    return qobject_cast<QTextEdit *>(widget(index));
+  }
 };
 
 class TextEditor : public QMainWindow {
@@ -24,7 +32,7 @@ class TextEditor : public QMainWindow {
     tabWidget = new TabWidget(this);
     setCentralWidget(tabWidget);
     // Connect tabCloseRequested signal to a slot for handling tab closing
-    connect(tabWidget, &QTabWidget::tabCloseRequested, this,
+    connect(tabWidget, &TabWidget::tabCloseRequested, this,
             &TextEditor::closeTab);
     // Add an initial empty tab
     addEmptyTab();
@@ -35,16 +43,15 @@ class TextEditor : public QMainWindow {
     resize(800, 600);
   }
 
-  QTabWidget *getTabWidget() const { return tabWidget; }
+  TabWidget *getTabWidget() const { return tabWidget; }
 
 protected:
   void closeEvent(QCloseEvent *event) override {
     // Iterate through all tabs and check for unsaved changes
     for (int i = 0; i < tabWidget->count(); i++) {
-      QTextEdit *textEdit = qobject_cast<QTextEdit *>(tabWidget->widget(i));
+      QTextEdit *textEdit = tabWidget->getTextEdit(i);
       if (textEdit && textEdit->document()->isModified()) {
-        tabWidget->setCurrentIndex(
-            i); // Set the current tab to the one with unsaved changes
+        tabWidget->setCurrentIndex(i);
 
         // If there are unsaved changes, prompt the user
         QMessageBox::StandardButton button = QMessageBox::warning(
@@ -169,7 +176,7 @@ private slots:
   }
 
 private:
-  QTabWidget *tabWidget;
+  TabWidget *tabWidget;
 
   void createMenu() {
     QMenu *fileMenu = menuBar()->addMenu(tr("File"));
