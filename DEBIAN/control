@@ -1,0 +1,6 @@
+Package: WolfEdit
+Version: 0.1
+Depends: libqt5core5a (>= 5.12.0), libqt5gui5 (>= 5.12.0), libc6 (>= 2.14), libstdc++6 (>= 4.6)
+Description: WolfEdit is a Qt C++ text editor.
+Architecture: amd64
+Maintainer: Argos Open Tech, LLC <admin@argosopentech.com>
