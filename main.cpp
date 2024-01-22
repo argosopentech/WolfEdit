@@ -12,6 +12,8 @@
 #include <QTextEdit>
 #include <QTextStream>
 
+static const QString APP_NAME = "WolfEdit";
+
 class Tab : public QTextEdit {
   Q_OBJECT public : Tab(QWidget *parent = nullptr) : QTextEdit(parent) {}
 };
@@ -31,15 +33,11 @@ class TextEditor : public QMainWindow {
       : QMainWindow(parent) {
     tabWidget = new TabWidget(this);
     setCentralWidget(tabWidget);
-    // Connect tabCloseRequested signal to a slot for handling tab closing
     connect(tabWidget, &TabWidget::tabCloseRequested, this,
             &TextEditor::closeTab);
-    // Add an initial empty tab
     addEmptyTab();
-
     createMenu();
-
-    setWindowTitle("WolfEdit");
+    setWindowTitle(APP_NAME);
     resize(800, 600);
   }
 
