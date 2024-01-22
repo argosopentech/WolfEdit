@@ -21,13 +21,9 @@ class TabWidget : public QTabWidget {
     setTabsClosable(true);
   }
 
-  Tab *getCurrentTextEdit() const {
-    return qobject_cast<Tab *>(currentWidget());
-  }
+  Tab *getCurrentTab() const { return qobject_cast<Tab *>(currentWidget()); }
 
-  Tab *getTextEdit(int index) const {
-    return qobject_cast<Tab *>(widget(index));
-  }
+  Tab *getTab(int index) const { return qobject_cast<Tab *>(widget(index)); }
 };
 
 class TextEditor : public QMainWindow {
@@ -53,7 +49,7 @@ protected:
   void closeEvent(QCloseEvent *event) override {
     // Iterate through all tabs and check for unsaved changes
     for (int i = 0; i < tabWidget->count(); i++) {
-      Tab *textEdit = tabWidget->getTextEdit(i);
+      Tab *textEdit = tabWidget->getTab(i);
       if (textEdit && textEdit->document()->isModified()) {
         tabWidget->setCurrentIndex(i);
 
@@ -97,8 +93,7 @@ private slots:
 
   void saveFile() {
     if (tabWidget->count() > 0) {
-      Tab *currentTextEdit =
-          qobject_cast<Tab *>(tabWidget->currentWidget());
+      Tab *currentTextEdit = qobject_cast<Tab *>(tabWidget->currentWidget());
       if (currentTextEdit) {
         QString currentFilePath =
             tabWidget->tabToolTip(tabWidget->currentIndex());
@@ -125,8 +120,7 @@ private slots:
 
   void saveFileAs() {
     if (tabWidget->count() > 0) {
-      Tab *currentTextEdit =
-          qobject_cast<Tab *>(tabWidget->currentWidget());
+      Tab *currentTextEdit = qobject_cast<Tab *>(tabWidget->currentWidget());
       if (currentTextEdit) {
         QString currentFilePath =
             tabWidget->tabToolTip(tabWidget->currentIndex());
