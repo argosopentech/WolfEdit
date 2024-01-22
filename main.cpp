@@ -11,19 +11,29 @@
 #include <QTabWidget>
 #include <QTextEdit>
 #include <QTextStream>
+#include <atomic>
 
 static const QString APP_NAME = "WolfEdit";
 
 class Tab : public QTextEdit {
-  Q_OBJECT public : Tab(QWidget *parent = nullptr) : QTextEdit(parent) {}
+  Q_OBJECT public : Tab(QWidget *parent = nullptr) : QTextEdit(parent) {
+    connect(this, &QTextEdit::textChanged, this, &Tab::textModified);
+    modified = false;
+  }
 
 private:
   QString filePath;
+  std::atomic<bool> modified;
 
 public:
-  bool unsavedChanges() const { return document()->isModified(); }
+  bool unsavedChanges() const { return isModified(); }
   QString getFilePath() const { return filePath; }
   void setFilePath(const QString &filePath) { this->filePath = filePath; }
+  bool isModified() const { return modified; }
+  void setModified(bool modified) { this->modified = modified; }
+
+private slots:
+  void textModified() { this->modified = true; }
 };
 
 class TabWidget : public QTabWidget {
@@ -99,8 +109,7 @@ private slots:
     if (tabWidget->count() > 0) {
       Tab *currentTab = tabWidget->getCurrentTab();
       if (currentTab) {
-        QString currentFilePath =
-            tabWidget->getTab(tabWidget->currentIndex())->getFilePath();
+        QString currentFilePath = tabWidget->getCurrentTab()->getFilePath();
 
         if (currentFilePath.isEmpty() || currentFilePath == "Untitled") {
           // If the file is untitled or not saved before, ask for a new file
@@ -118,13 +127,14 @@ private slots:
         }
 
         saveFileWithDialog(currentTab, currentFilePath);
+        currentTab->setModified(false);
       }
     }
   }
 
   void saveFileAs() {
     if (tabWidget->count() > 0) {
-      Tab *currentTextEdit = qobject_cast<Tab *>(tabWidget->currentWidget());
+      Tab *currentTextEdit = tabWidget->getCurrentTab();
       if (currentTextEdit) {
         QString currentFilePath = currentTextEdit->getFilePath();
 
@@ -140,6 +150,7 @@ private slots:
           tabWidget->setTabToolTip(tabWidget->currentIndex(), newFilePath);
 
           saveFileWithDialog(currentTextEdit, newFilePath);
+          currentTextEdit->setModified(false);
         }
       }
     }
