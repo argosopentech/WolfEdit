@@ -186,6 +186,11 @@ private slots:
     // Close the tab
     tabWidget->removeTab(index);
     delete textEdit;
+
+    // If there are no tabs left close the main window
+    if (tabWidget->count() == 0) {
+      close();
+    }
   }
 
 private:
