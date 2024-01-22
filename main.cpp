@@ -41,8 +41,6 @@ class TextEditor : public QMainWindow {
     resize(800, 600);
   }
 
-  TabWidget *getTabWidget() const { return tabWidget; }
-
 protected:
   void closeEvent(QCloseEvent *event) override {
     // Iterate through all tabs and check for unsaved changes
