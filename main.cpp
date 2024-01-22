@@ -92,7 +92,7 @@ private slots:
 
   void saveFile() {
     if (tabWidget->count() > 0) {
-      Tab *currentTextEdit = qobject_cast<Tab *>(tabWidget->currentWidget());
+      Tab *currentTextEdit = tabWidget->getCurrentTab();
       if (currentTextEdit) {
         QString currentFilePath =
             tabWidget->tabToolTip(tabWidget->currentIndex());
