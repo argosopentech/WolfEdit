@@ -17,8 +17,13 @@ static const QString APP_NAME = "WolfEdit";
 class Tab : public QTextEdit {
   Q_OBJECT public : Tab(QWidget *parent = nullptr) : QTextEdit(parent) {}
 
+private:
+  QString filePath;
+
 public:
   bool unsavedChanges() const { return document()->isModified(); }
+  QString getFilePath() const { return filePath; }
+  void setFilePath(const QString &filePath) { this->filePath = filePath; }
 };
 
 class TabWidget : public QTabWidget {
@@ -95,7 +100,7 @@ private slots:
       Tab *currentTab = tabWidget->getCurrentTab();
       if (currentTab) {
         QString currentFilePath =
-            tabWidget->tabToolTip(tabWidget->currentIndex());
+            tabWidget->getTab(tabWidget->currentIndex())->getFilePath();
 
         if (currentFilePath.isEmpty() || currentFilePath == "Untitled") {
           // If the file is untitled or not saved before, ask for a new file
@@ -106,9 +111,9 @@ private slots:
           if (currentFilePath.isEmpty()) {
             return; // User canceled the save operation
           }
-          // Update the tab title and tooltip
-          tabWidget->setTabText(tabWidget->currentIndex(),
-                                QFileInfo(currentFilePath).fileName());
+          QString filepath = QFileInfo(currentFilePath).fileName();
+          tabWidget->getCurrentTab()->setFilePath(currentFilePath);
+          tabWidget->setTabText(tabWidget->currentIndex(), filepath);
           tabWidget->setTabToolTip(tabWidget->currentIndex(), currentFilePath);
         }
 
@@ -121,8 +126,7 @@ private slots:
     if (tabWidget->count() > 0) {
       Tab *currentTextEdit = qobject_cast<Tab *>(tabWidget->currentWidget());
       if (currentTextEdit) {
-        QString currentFilePath =
-            tabWidget->tabToolTip(tabWidget->currentIndex());
+        QString currentFilePath = currentTextEdit->getFilePath();
 
         // Ask for a new file name
         QString newFilePath = QFileDialog::getSaveFileName(
@@ -130,6 +134,7 @@ private slots:
             tr("Text Files (*.txt);;All Files (*)"));
         if (!newFilePath.isEmpty()) {
           // Update the tab title and tooltip
+          tabWidget->getCurrentTab()->setFilePath(newFilePath);
           tabWidget->setTabText(tabWidget->currentIndex(),
                                 QFileInfo(newFilePath).fileName());
           tabWidget->setTabToolTip(tabWidget->currentIndex(), newFilePath);
