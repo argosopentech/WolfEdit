@@ -16,6 +16,9 @@ static const QString APP_NAME = "WolfEdit";
 
 class Tab : public QTextEdit {
   Q_OBJECT public : Tab(QWidget *parent = nullptr) : QTextEdit(parent) {}
+
+public:
+  bool unsavedChanges() const { return document()->isModified(); }
 };
 
 class TabWidget : public QTabWidget {
@@ -46,7 +49,7 @@ protected:
     // Iterate through all tabs and check for unsaved changes
     for (int i = 0; i < tabWidget->count(); i++) {
       Tab *textEdit = tabWidget->getTab(i);
-      if (textEdit && textEdit->document()->isModified()) {
+      if (textEdit && textEdit->unsavedChanges()) {
         tabWidget->setCurrentIndex(i);
 
         // If there are unsaved changes, prompt the user
