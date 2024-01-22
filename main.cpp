@@ -92,8 +92,8 @@ private slots:
 
   void saveFile() {
     if (tabWidget->count() > 0) {
-      Tab *currentTextEdit = tabWidget->getCurrentTab();
-      if (currentTextEdit) {
+      Tab *currentTab = tabWidget->getCurrentTab();
+      if (currentTab) {
         QString currentFilePath =
             tabWidget->tabToolTip(tabWidget->currentIndex());
 
@@ -112,7 +112,7 @@ private slots:
           tabWidget->setTabToolTip(tabWidget->currentIndex(), currentFilePath);
         }
 
-        saveFileWithDialog(currentTextEdit, currentFilePath);
+        saveFileWithDialog(currentTab, currentFilePath);
       }
     }
   }
