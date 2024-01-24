@@ -126,7 +126,7 @@ private slots:
           tabWidget->setTabToolTip(tabWidget->currentIndex(), currentFilePath);
         }
 
-        saveFileWithDialog(currentTab, currentFilePath);
+        saveTab(currentTab, currentFilePath);
         currentTab->setModified(false);
       }
     }
@@ -149,7 +149,7 @@ private slots:
                                 QFileInfo(newFilePath).fileName());
           tabWidget->setTabToolTip(tabWidget->currentIndex(), newFilePath);
 
-          saveFileWithDialog(currentTextEdit, newFilePath);
+          saveTab(currentTextEdit, newFilePath);
           currentTextEdit->setModified(false);
         }
       }
@@ -238,6 +238,7 @@ private:
     int tabIndex = tabWidget->addTab(textEdit, QFileInfo(filePath).fileName());
     tabWidget->setTabToolTip(tabIndex, filePath);
     tabWidget->setCurrentIndex(tabIndex);
+    tabWidget->getTab(tabIndex)->setFilePath(filePath);
   }
 
   void addEmptyTab() {
@@ -246,7 +247,7 @@ private:
     tabWidget->setTabToolTip(tabIndex, "Untitled");
   }
 
-  void saveFileWithDialog(Tab *textEdit, const QString &filePath) {
+  void saveTab(Tab *textEdit, const QString &filePath) {
     QFile file(filePath);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
       QTextStream out(&file);
