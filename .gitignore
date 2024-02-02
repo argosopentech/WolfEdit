@@ -1,3 +1,6 @@
+# Ignore changes in third party files
+third_party/
+
 # Compiled files
 *.o
 *.obj
