@@ -1,5 +1,4 @@
 mkdir -p build
 cd build
-cmake ..
+qmake ..
 make
-
