@@ -6,12 +6,12 @@ project(WolfEdit)
 # Find required packages (you may need to adjust these depending on your project)
 find_package(Qt5 COMPONENTS REQUIRED Core Widgets)
 
-# Include directories
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
 # Add your source files
 set(SOURCES
     main.cpp
+    src/editor.h
+    src/editor.cpp
+    #src/vim.cpp
     # Add other source files here
 )
 
@@ -22,10 +22,10 @@ set(CMAKE_AUTOUIC ON)
 # Create executable
 add_executable(WolfEdit ${SOURCES})
 
-# Link against Qt libraries
 target_link_libraries(WolfEdit
     Qt5::Core
     Qt5::Widgets
+    fakevim
 )
 
 # Set the output directory for the executable

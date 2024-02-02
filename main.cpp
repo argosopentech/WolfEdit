@@ -13,6 +13,8 @@
 #include <QTextStream>
 #include <atomic>
 
+#include "src/vim.cpp"
+
 static const QString APP_NAME = "WolfEdit";
 
 class Tab : public QTextEdit {
@@ -259,6 +261,7 @@ private:
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
+  VimClient::vim_edit();
 
   TextEditor editor;
   editor.show();
