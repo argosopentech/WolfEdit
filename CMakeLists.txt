@@ -31,3 +31,10 @@ target_link_libraries(WolfEdit
 # Set the output directory for the executable
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build)
 
+# Add the FakeVim library
+add_subdirectory(third_party/FakeVim)
+target_link_libraries(WolfEdit fakevim)
+
+# Set the output directory for the executable
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/build)
+
