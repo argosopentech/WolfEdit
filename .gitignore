@@ -1,4 +1,10 @@
-# Ignore changes in third party files
+# WolfEdit
+## Delete build files 
+CMakeFiles/
+WolfEdit_autogen/
+cmake_install.cmake
+
+## Ignore changes in third party files
 third_party/
 
 # Compiled files
