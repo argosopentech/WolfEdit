@@ -13,6 +13,8 @@
 #include <QTextStream>
 #include <atomic>
 
+#include "third_party/FakeVim/example/editor.h"  // Include the FakeVim Editor header
+
 static const QString APP_NAME = "WolfEdit";
 
 class Tab : public QTextEdit {
