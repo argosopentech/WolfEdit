@@ -1,1 +1,1 @@
-clang-format -i *.cpp
+clang-format -i *.cpp src/*.cpp

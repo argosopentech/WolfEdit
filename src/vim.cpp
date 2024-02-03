@@ -24,82 +24,83 @@
 #include <fakevim/fakevimhandler.h>
 
 #include <QApplication>
+#include <QFile>
 #include <QMainWindow>
 #include <QStandardPaths>
-#include <QFile>
 
 namespace VimClient {
 
-
-QMainWindow* vim_edit()
-{
+QMainWindow *vim_edit() {
   QApplication app(argc, argv);
-    const QString fileToEdit = "";
+  const QString fileToEdit = "";
 
-    bool usePlainTextEdit = false; 
+  bool usePlainTextEdit = false;
 
-    QWidget *editor = createEditorWidget(usePlainTextEdit);
+  QWidget *editor = createEditorWidget(usePlainTextEdit);
 
-    // Create FakeVimHandler instance which will emulate Vim behavior in editor widget.
-    FakeVim::Internal::FakeVimHandler handler(editor, 0);
+  // Create FakeVimHandler instance which will emulate Vim behavior in editor
+  // widget.
+  FakeVim::Internal::FakeVimHandler handler(editor, 0);
 
-    // Create main window.
-    QMainWindow* mainWindow = new QMainWindow();
-    initMainWindow(mainWindow, editor, QLatin1String(usePlainTextEdit ? "QPlainTextEdit" : "QTextEdit"));
+  // Create main window.
+  QMainWindow *mainWindow = new QMainWindow();
+  initMainWindow(
+      mainWindow, editor,
+      QLatin1String(usePlainTextEdit ? "QPlainTextEdit" : "QTextEdit"));
 
-    // Connect slots to FakeVimHandler signals.
-    Proxy *proxy = connectSignals(&handler, mainWindow, editor);
+  // Connect slots to FakeVimHandler signals.
+  Proxy *proxy = connectSignals(&handler, mainWindow, editor);
 
-    QObject::connect(proxy, &Proxy::handleInput,
-        &handler, [&handler] (const QString &text) { handler.handleInput(text); });
+  QObject::connect(
+      proxy, &Proxy::handleInput, &handler,
+      [&handler](const QString &text) { handler.handleInput(text); });
 
-    QString fileName = fileToEdit;
-    QObject::connect(proxy, &Proxy::requestSave, proxy, [proxy, fileName] () {
-        proxy->save(fileName);
-    });
+  QString fileName = fileToEdit;
+  QObject::connect(proxy, &Proxy::requestSave, proxy,
+                   [proxy, fileName]() { proxy->save(fileName); });
 
-    QObject::connect(proxy, &Proxy::requestSaveAndQuit, proxy, [proxy, fileName] () {
-        if (proxy->save(fileName)) {
-            proxy->cancel(fileName);
-        }
-    });
-    QObject::connect(proxy, &Proxy::requestQuit, proxy, [proxy, fileName] () {
-        proxy->cancel(fileName);
-    });
+  QObject::connect(proxy, &Proxy::requestSaveAndQuit, proxy,
+                   [proxy, fileName]() {
+                     if (proxy->save(fileName)) {
+                       proxy->cancel(fileName);
+                     }
+                   });
+  QObject::connect(proxy, &Proxy::requestQuit, proxy,
+                   [proxy, fileName]() { proxy->cancel(fileName); });
 
-    // Initialize FakeVimHandler.
-    initHandler(&handler);
+  // Initialize FakeVimHandler.
+  initHandler(&handler);
 
-    // Load vimrc if it exists
-    QString vimrc = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
+  // Load vimrc if it exists
+  QString vimrc = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
 #ifdef Q_OS_WIN
-        + QLatin1String("/_vimrc");
+                  + QLatin1String("/_vimrc");
 #else
-        + QLatin1String("/.vimrc");
+                  + QLatin1String("/.vimrc");
 #endif
-    if (QFile::exists(vimrc)) {
-        handler.handleCommand(QLatin1String("source ") + vimrc);
-    } else {
-        // Set some Vim options.
-        handler.handleCommand(QLatin1String("set expandtab"));
-        handler.handleCommand(QLatin1String("set shiftwidth=8"));
-        handler.handleCommand(QLatin1String("set tabstop=16"));
-        handler.handleCommand(QLatin1String("set autoindent"));
-        handler.handleCommand(QLatin1String("set smartindent"));
-    }
+  if (QFile::exists(vimrc)) {
+    handler.handleCommand(QLatin1String("source ") + vimrc);
+  } else {
+    // Set some Vim options.
+    handler.handleCommand(QLatin1String("set expandtab"));
+    handler.handleCommand(QLatin1String("set shiftwidth=8"));
+    handler.handleCommand(QLatin1String("set tabstop=16"));
+    handler.handleCommand(QLatin1String("set autoindent"));
+    handler.handleCommand(QLatin1String("set smartindent"));
+  }
 
-    // Clear undo and redo queues.
-    clearUndoRedo(editor);
+  // Clear undo and redo queues.
+  clearUndoRedo(editor);
 
-    if (!fileToEdit.isEmpty()) {
-        proxy->openFile(fileToEdit);
-    }
+  if (!fileToEdit.isEmpty()) {
+    proxy->openFile(fileToEdit);
+  }
 
   app.exec();
 
-   return mainWindow; 
+  return mainWindow;
 }
 
-}
+} // namespace VimClient
 
 #endif // VIM_CLIENT_H

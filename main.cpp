@@ -304,9 +304,7 @@ int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
   const QString fileToEdit = "";
 
-  bool usePlainTextEdit = false;
-
-  QWidget *editor = createEditorWidget(usePlainTextEdit);
+  QWidget *editor = createEditorWidget();
 
   // Create FakeVimHandler instance which will emulate Vim behavior in editor
   // widget.
@@ -314,11 +312,6 @@ int main(int argc, char *argv[]) {
 
   // Create main window.
   QMainWindow *mainWindow = new QMainWindow();
-  /*
-  initMainWindow(
-      mainWindow, editor,
-      QLatin1String(usePlainTextEdit ? "QPlainTextEdit" : "QTextEdit"));
-  */
 
   // Create layout
   QVBoxLayout *layout = new QVBoxLayout();
@@ -330,6 +323,7 @@ int main(int argc, char *argv[]) {
   // mainWindow->setCentralWidget(editor);
 
   mainWindow->resize(600, 650);
+  mainWindow->move(0, 0);
   mainWindow->show();
 
   // Connect slots to FakeVimHandler signals.

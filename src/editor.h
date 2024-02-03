@@ -37,9 +37,8 @@ struct ExCommand;
 } // namespace Internal
 } // namespace FakeVim
 
-QWidget *createEditorWidget(bool usePlainTextEdit);
+QWidget *createEditorWidget();
 void initHandler(FakeVim::Internal::FakeVimHandler *handler);
-void initMainWindow(QMainWindow *mainWindow, QWidget *centralWidget, const QString &title);
 void clearUndoRedo(QWidget *editor);
 Proxy *connectSignals( FakeVim::Internal::FakeVimHandler *handler, QMainWindow *mainWindow, QWidget *editor);
 
