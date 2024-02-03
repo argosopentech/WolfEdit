@@ -21,6 +21,8 @@
 
 #include "src/editor.h"
 
+namespace WolfEdit {
+
 static const QString APP_NAME = "WolfEdit";
 
 class Tab : public QWidget {
@@ -66,14 +68,14 @@ public:
   Tab *getTab(int index) const { return qobject_cast<Tab *>(widget(index)); }
 };
 
-class TextEditor : public QMainWindow {
+class WolfEdit : public QMainWindow {
   Q_OBJECT
 public:
-  TextEditor(QWidget *parent = nullptr) : QMainWindow(parent) {
+  WolfEdit(QWidget *parent = nullptr) : QMainWindow(parent) {
     tabWidget = new TabWidget(this);
     setCentralWidget(tabWidget);
     connect(tabWidget, &TabWidget::tabCloseRequested, this,
-            &TextEditor::closeTab);
+            &WolfEdit::closeTab);
     addEmptyTab();
     createMenu();
     setWindowTitle(APP_NAME);
@@ -212,25 +214,24 @@ private:
     QMenu *fileMenu = menuBar()->addMenu(tr("File"));
 
     QAction *newAction = new QAction(tr("New"), this);
-    connect(newAction, &QAction::triggered, this, &TextEditor::newFile);
+    connect(newAction, &QAction::triggered, this, &WolfEdit::newFile);
     fileMenu->addAction(newAction);
 
     QAction *openAction = new QAction(tr("Open"), this);
-    connect(openAction, &QAction::triggered, this, &TextEditor::openFile);
+    connect(openAction, &QAction::triggered, this, &WolfEdit::openFile);
     fileMenu->addAction(openAction);
 
     QAction *saveAction = new QAction(tr("Save"), this);
-    connect(saveAction, &QAction::triggered, this, &TextEditor::saveFile);
+    connect(saveAction, &QAction::triggered, this, &WolfEdit::saveFile);
     fileMenu->addAction(saveAction);
 
     QAction *saveAsAction = new QAction(tr("Save As"), this);
-    connect(saveAsAction, &QAction::triggered, this, &TextEditor::saveFileAs);
+    connect(saveAsAction, &QAction::triggered, this, &WolfEdit::saveFileAs);
     fileMenu->addAction(saveAsAction);
 
     // Add an "About" action
     QAction *aboutAction = new QAction(tr("About"), this);
-    connect(aboutAction, &QAction::triggered, this,
-            &TextEditor::showAboutDialog);
+    connect(aboutAction, &QAction::triggered, this, &WolfEdit::showAboutDialog);
     menuBar()->addAction(aboutAction);
   }
 
@@ -277,10 +278,12 @@ private:
   }
 };
 
+} // namespace WolfEdit
+
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
 
-  TextEditor *editor = new TextEditor();
+  WolfEdit::WolfEdit *editor = new WolfEdit::WolfEdit();
   editor->show();
 
   return app.exec();
