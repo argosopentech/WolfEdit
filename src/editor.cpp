@@ -35,6 +35,8 @@
 #include <QStandardPaths>
 #include <QDebug>
 
+#include <iostream>
+
 #define EDITOR(editor, call) \
     if (QPlainTextEdit *ed = qobject_cast<QPlainTextEdit *>(editor)) { \
         (ed->call); \
@@ -125,6 +127,7 @@ void initHandler(FakeVimHandler *handler)
 
 void initMainWindow(QMainWindow *mainWindow, QWidget *centralWidget, const QString &title)
 {
+    std::cout << "initMainWindow" << std::endl;
     mainWindow->setWindowTitle(QString(_("FakeVim (%1)")).arg(title));
     mainWindow->setCentralWidget(centralWidget);
     mainWindow->resize(600, 650);

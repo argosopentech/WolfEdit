@@ -260,13 +260,14 @@ private:
 };
 
 int main(int argc, char *argv[]) {
-  QApplication app(argc, argv);
-  VimClient::vim_edit();
+  // QApplication app(argc, argv);
 
-  TextEditor editor;
-  editor.show();
+  QMainWindow *vimClientWindow = VimClient::vim_edit();
 
-  return app.exec();
+  // TextEditor editor;
+  // editor.show();
+
+  // return app.exec();
 }
 
 #include "main.moc"

@@ -17,9 +17,6 @@
     along with CopyQ.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef VIM_CLIENT_H
-#define VIM_CLIENT_H
-
 #include "editor.h"
 #include <fakevim/fakevimhandler.h>
 
@@ -28,29 +25,28 @@
 #include <QStandardPaths>
 #include <QFile>
 
-namespace VimClient {
-
-
-QMainWindow* vim_edit()
+int main(int argc, char *argv[])
 {
-  int argc = 0;
-    char *argv[] = {nullptr};
-  QApplication app(argc, argv);
-    const QString fileToEdit = "";
+    QApplication app(argc, argv);
 
-    bool usePlainTextEdit = false; 
+    const QStringList args = qApp->arguments();
+    const QString fileToEdit = args.value(1);
 
+    // If FAKEVIM_PLAIN_TEXT_EDIT environment variable is 1 use QPlainTextEdit instead on QTextEdit;
+    bool usePlainTextEdit = qgetenv("FAKEVIM_PLAIN_TEXT_EDIT") == "1";
+
+    // Create editor widget.
     QWidget *editor = createEditorWidget(usePlainTextEdit);
 
     // Create FakeVimHandler instance which will emulate Vim behavior in editor widget.
     FakeVim::Internal::FakeVimHandler handler(editor, 0);
 
     // Create main window.
-    QMainWindow* mainWindow = new QMainWindow();
-    initMainWindow(mainWindow, editor, QLatin1String(usePlainTextEdit ? "QPlainTextEdit" : "QTextEdit"));
+    QMainWindow mainWindow;
+    initMainWindow(&mainWindow, editor, QLatin1String(usePlainTextEdit ? "QPlainTextEdit" : "QTextEdit"));
 
     // Connect slots to FakeVimHandler signals.
-    Proxy *proxy = connectSignals(&handler, mainWindow, editor);
+    Proxy *proxy = connectSignals(&handler, &mainWindow, editor);
 
     QObject::connect(proxy, &Proxy::handleInput,
         &handler, [&handler] (const QString &text) { handler.handleInput(text); });
@@ -97,11 +93,11 @@ QMainWindow* vim_edit()
         proxy->openFile(fileToEdit);
     }
 
-  app.exec();
+    if (args.size() > 2) {
+        for (const QString &cmd : args.mid(2))
+            handler.handleInput(cmd);
+        return 0;
+    }
 
-   return mainWindow; 
+    return app.exec();
 }
-
-}
-
-#endif // VIM_CLIENT_H
