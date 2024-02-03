@@ -15,17 +15,25 @@
 
 static const QString APP_NAME = "WolfEdit";
 
-class Tab : public QTextEdit {
-  Q_OBJECT public : Tab(QWidget *parent = nullptr) : QTextEdit(parent) {
-    connect(this, &QTextEdit::textChanged, this, &Tab::textModified);
+class Tab : public QWidget {
+  Q_OBJECT public
+      : Tab(QWidget *parent = nullptr, QTextEdit *textEdit = nullptr)
+      : QWidget(parent) {
+    if (textEdit) {
+      this->textEdit = textEdit;
+    } else {
+      this->textEdit = new QTextEdit(this);
+    }
+    connect(this->textEdit, &QTextEdit::textChanged, this, &Tab::textModified);
     modified = false;
   }
 
 private:
-  QString filePath;
   std::atomic<bool> modified;
 
 public:
+  QTextEdit *textEdit;
+  QString filePath;
   bool unsavedChanges() const { return isModified(); }
   QString getFilePath() const { return filePath; }
   void setFilePath(const QString &filePath) { this->filePath = filePath; }
@@ -93,16 +101,7 @@ private slots:
   void openFile() {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "",
                                                     tr("All Files (*)"));
-    if (!fileName.isEmpty()) {
-      QFile file(fileName);
-      if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        Tab *textEdit = new Tab(this);
-        textEdit->setPlainText(QString::fromUtf8(file.readAll()));
-        file.close();
-
-        addTab(textEdit, fileName);
-      }
-    }
+    addTab(fileName);
   }
 
   void saveFile() {
@@ -111,7 +110,7 @@ private slots:
       if (currentTab) {
         QString currentFilePath = tabWidget->getCurrentTab()->getFilePath();
 
-        if (currentFilePath.isEmpty() || currentFilePath == "Untitled") {
+        if (currentFilePath.isEmpty()) {
           // If the file is untitled or not saved before, ask for a new file
           // name
           currentFilePath = QFileDialog::getSaveFileName(
@@ -158,12 +157,12 @@ private slots:
 
   void newFile() {
     Tab *textEdit = new Tab(this);
-    addTab(textEdit, "Untitled");
+    addTab("");
   }
 
   void closeTab(int index) {
-    Tab *textEdit = qobject_cast<Tab *>(tabWidget->widget(index));
-    if (textEdit && textEdit->document()->isModified()) {
+    Tab *tab = qobject_cast<Tab *>(tabWidget->widget(index));
+    if (tab && tab->isModified()) {
       // Set the current tab to the one with unsaved changes
       tabWidget->setCurrentIndex(index);
 
@@ -185,7 +184,7 @@ private slots:
 
     // Close the tab
     tabWidget->removeTab(index);
-    delete textEdit;
+    delete tab;
 
     // If there are no tabs left close the main window
     if (tabWidget->count() == 0) {
@@ -234,8 +233,16 @@ private:
            "quis facilisis tortor risus id sapien."));
   }
 
-  void addTab(Tab *textEdit, const QString &filePath) {
-    int tabIndex = tabWidget->addTab(textEdit, QFileInfo(filePath).fileName());
+  void addTab(QString filePath) {
+    Tab *tab = new Tab(this);
+    if (!filePath.isEmpty()) {
+      QFile file(filePath);
+      if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        tab->textEdit->setPlainText(QString::fromUtf8(file.readAll()));
+        file.close();
+      }
+    }
+    int tabIndex = tabWidget->addTab(tab, QFileInfo(filePath).fileName());
     tabWidget->setTabToolTip(tabIndex, filePath);
     tabWidget->setCurrentIndex(tabIndex);
     tabWidget->getTab(tabIndex)->setFilePath(filePath);
@@ -243,15 +250,15 @@ private:
 
   void addEmptyTab() {
     Tab *textEdit = new Tab(this);
-    int tabIndex = tabWidget->addTab(textEdit, "Untitled");
-    tabWidget->setTabToolTip(tabIndex, "Untitled");
+    int tabIndex = tabWidget->addTab(textEdit, "");
+    tabWidget->setTabToolTip(tabIndex, "");
   }
 
   void saveTab(Tab *textEdit, const QString &filePath) {
     QFile file(filePath);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
       QTextStream out(&file);
-      out << textEdit->toPlainText();
+      out << textEdit->textEdit->toPlainText();
       file.close();
     }
   }
