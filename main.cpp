@@ -318,15 +318,12 @@ int main(int argc, char *argv[]) {
   QWidget *centralWidget = new QWidget();
   centralWidget->setLayout(layout);
   mainWindow->setCentralWidget(centralWidget);
-
-  // mainWindow->setCentralWidget(editor);
-
   mainWindow->resize(600, 650);
   mainWindow->move(0, 0);
   mainWindow->show();
 
   // Connect slots to FakeVimHandler signals.
-  Proxy *proxy = connectSignals(handler, mainWindow, editor);
+  Proxy *proxy = connectSignals(handler, editor, editor->statusBar);
 
   QObject::connect(
       proxy, &Proxy::handleInput, handler,

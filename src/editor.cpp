@@ -71,9 +71,9 @@ void clearUndoRedo(QWidget *editor) {
   EDITOR(editor, setUndoRedoEnabled(true));
 }
 
-Proxy *connectSignals(FakeVimHandler *handler, QMainWindow *mainWindow,
-                      QWidget *editor) {
-  Proxy *proxy = new Proxy(editor, mainWindow, handler);
+Proxy *connectSignals(FakeVimHandler *handler, QWidget *editor,
+                      QLabel *statusBar) {
+  Proxy *proxy = new Proxy(editor, statusBar, handler);
 
   handler->commandBufferChanged.connect(
       [proxy](const QString &contents, int cursorPos, int /*anchorPos*/,
@@ -109,8 +109,8 @@ Proxy *connectSignals(FakeVimHandler *handler, QMainWindow *mainWindow,
   return proxy;
 }
 
-Proxy::Proxy(QWidget *widget, QMainWindow *mw, QObject *parent)
-    : QObject(parent), m_widget(widget), m_mainWindow(mw) {}
+Proxy::Proxy(QWidget *widget, QLabel *statusBar, QObject *parent)
+    : QObject(parent), m_widget(widget), statusBar(statusBar) {}
 
 void Proxy::openFile(const QString &fileName) {
   emit handleInput(QString(_(":r %1<CR>")).arg(fileName));
@@ -185,7 +185,9 @@ void Proxy::updateStatusBar() {
   int slack = 80 - m_statusMessage.size() - m_statusData.size();
   QString msg =
       m_statusMessage + QString(slack, QLatin1Char(' ')) + m_statusData;
-  m_mainWindow->statusBar()->showMessage(msg);
+  // TODO
+  statusBar->setText(msg);
+  // m_mainWindow->statusBar()->showMessage(msg);
 }
 
 void Proxy::handleExCommand(bool *handled, const ExCommand &cmd) {

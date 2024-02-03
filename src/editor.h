@@ -19,13 +19,15 @@
 
 #pragma once
 
+#include <QApplication>
+#include <QDebug>
+#include <QLabel>
 #include <QObject>
+#include <QPaintEvent>
 #include <QPainter>
 #include <QTextEdit>
-#include <QPaintEvent>
 #include <QVBoxLayout>
 #include <fakevim/fakevimhandler.h>
-
 
 class QMainWindow;
 class QTextDocument;
@@ -45,65 +47,64 @@ struct ExCommand;
 QWidget *createEditorWidget();
 void initHandler(FakeVim::Internal::FakeVimHandler *handler);
 void clearUndoRedo(QWidget *editor);
-Proxy *connectSignals( FakeVim::Internal::FakeVimHandler *handler, QMainWindow *mainWindow, QWidget *editor);
+Proxy *connectSignals(FakeVim::Internal::FakeVimHandler *handler,
+                      QWidget *editor, QLabel *statusBar);
 
-class Proxy : public QObject
-{
-    Q_OBJECT
+class Proxy : public QObject {
+  Q_OBJECT
 
 public:
-    explicit Proxy(QWidget *widget, QMainWindow *mw, QObject *parent = nullptr);
-    void openFile(const QString &fileName);
+  explicit Proxy(QWidget *widget, QLabel *statusBar, QObject *parent = nullptr);
+  void openFile(const QString &fileName);
 
-    bool save(const QString &fileName);
-    void cancel(const QString &fileName);
+  bool save(const QString &fileName);
+  void cancel(const QString &fileName);
 
 signals:
-    void handleInput(const QString &keys);
-    void requestSave();
-    void requestSaveAndQuit();
-    void requestQuit();
-    void requestRun();
+  void handleInput(const QString &keys);
+  void requestSave();
+  void requestSaveAndQuit();
+  void requestQuit();
+  void requestRun();
 
 public slots:
-    void changeStatusData(const QString &info);
-    void highlightMatches(const QString &pattern);
-    void changeStatusMessage(const QString &contents, int cursorPos);
-    void changeExtraInformation(const QString &info);
-    void updateStatusBar();
-    void handleExCommand(bool *handled, const FakeVim::Internal::ExCommand &cmd);
-    void requestSetBlockSelection(const QTextCursor &tc);
-    void requestDisableBlockSelection();
-    void updateBlockSelection();
-    void requestHasBlockSelection(bool *on);
-    void indentRegion(int beginBlock, int endBlock, QChar typedChar);
-    void checkForElectricCharacter(bool *result, QChar c);
+  void changeStatusData(const QString &info);
+  void highlightMatches(const QString &pattern);
+  void changeStatusMessage(const QString &contents, int cursorPos);
+  void changeExtraInformation(const QString &info);
+  void updateStatusBar();
+  void handleExCommand(bool *handled, const FakeVim::Internal::ExCommand &cmd);
+  void requestSetBlockSelection(const QTextCursor &tc);
+  void requestDisableBlockSelection();
+  void updateBlockSelection();
+  void requestHasBlockSelection(bool *on);
+  void indentRegion(int beginBlock, int endBlock, QChar typedChar);
+  void checkForElectricCharacter(bool *result, QChar c);
 
 private:
-    static int firstNonSpace(const QString &text);
+  static int firstNonSpace(const QString &text);
 
-    void updateExtraSelections();
-    bool wantSaveAndQuit(const FakeVim::Internal::ExCommand &cmd);
-    bool wantSave(const FakeVim::Internal::ExCommand &cmd);
-    bool wantQuit(const FakeVim::Internal::ExCommand &cmd);
-    bool wantRun(const FakeVim::Internal::ExCommand &cmd);
+  void updateExtraSelections();
+  bool wantSaveAndQuit(const FakeVim::Internal::ExCommand &cmd);
+  bool wantSave(const FakeVim::Internal::ExCommand &cmd);
+  bool wantQuit(const FakeVim::Internal::ExCommand &cmd);
+  bool wantRun(const FakeVim::Internal::ExCommand &cmd);
 
-    void invalidate();
-    bool hasChanges(const QString &fileName);
+  void invalidate();
+  bool hasChanges(const QString &fileName);
 
-    QTextDocument *document() const;
-    QString content() const;
+  QTextDocument *document() const;
+  QString content() const;
 
-    QWidget *m_widget;
-    QMainWindow *m_mainWindow;
-    QString m_statusMessage;
-    QString m_statusData;
+  QWidget *m_widget;
+  QLabel *statusBar;
+  QString m_statusMessage;
+  QString m_statusData;
 
-    QList<QTextEdit::ExtraSelection> m_searchSelection;
-    QList<QTextEdit::ExtraSelection> m_clearSelection;
-    QList<QTextEdit::ExtraSelection> m_blockSelection;
+  QList<QTextEdit::ExtraSelection> m_searchSelection;
+  QList<QTextEdit::ExtraSelection> m_clearSelection;
+  QList<QTextEdit::ExtraSelection> m_blockSelection;
 };
-
 
 class Editor : public QTextEdit {
 public:
@@ -147,25 +148,36 @@ private:
   QRect m_cursorRect;
 };
 
-class VimEditor : public QWidget
-{
-    Q_OBJECT
+class VimEditor : public QWidget {
+  Q_OBJECT
 
 public:
-    QTextEdit* textEdit;
-    QVBoxLayout* layout;
-FakeVim::Internal::FakeVimHandler *handler;
-    VimEditor(QWidget *parent = nullptr){
-        layout = new QVBoxLayout(this);
-        textEdit = new Editor(this);
-        layout->addWidget(textEdit);
-        setLayout(layout);
-        textEdit->setCursorWidth(0);
-   handler =
-      new FakeVim::Internal::FakeVimHandler(this->textEdit, 0);
-    }
-    ~VimEditor() {
-        delete handler;
-    }
+  QVBoxLayout *layout;
+  FakeVim::Internal::FakeVimHandler *handler;
+  QTextEdit *textEdit;
+  QLabel *statusBar;
+  VimEditor(QWidget *parent = nullptr) {
+    textEdit = new Editor(this);
+    textEdit->setCursorWidth(0);
+    handler = new FakeVim::Internal::FakeVimHandler(this->textEdit, 0);
+    statusBar = new QLabel(this);
+    configureFont();
+    layout = new QVBoxLayout(this);
+    layout->addWidget(textEdit);
+    layout->addWidget(statusBar);
+    setLayout(layout);
+  }
+  ~VimEditor() { delete handler; }
 
+private:
+  void configureFont() {
+    if (textEdit == nullptr || statusBar == nullptr) {
+      qWarning() << "textEdit or statusBar is null, make sure they are "
+                    "initialized before calling configureFont()";
+    }
+    QFont font = QApplication::font();
+    font.setFamily("Monospace");
+    textEdit->setFont(font);
+    statusBar->setFont(font);
+  }
 };

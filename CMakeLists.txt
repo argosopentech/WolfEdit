@@ -12,7 +12,6 @@ set(SOURCES
     #src/main.cpp
     src/editor.h
     src/editor.cpp
-    #src/vim.cpp
     # Add other source files here
 )
 
