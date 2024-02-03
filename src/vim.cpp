@@ -33,8 +33,6 @@ namespace VimClient {
 
 QMainWindow* vim_edit()
 {
-  int argc = 0;
-    char *argv[] = {nullptr};
   QApplication app(argc, argv);
     const QString fileToEdit = "";
 
