@@ -31,7 +31,6 @@ public:
     this->textEdit = this->vimEditor->textEdit;
     connect(this->textEdit, &QTextEdit::textChanged, this, &Tab::textModified);
     modified = false;
-    // Create layout
     layout = new QVBoxLayout();
     layout->addWidget(this->vimEditor);
     setLayout(layout);
@@ -56,7 +55,9 @@ private slots:
 };
 
 class TabWidget : public QTabWidget {
-  Q_OBJECT public : TabWidget(QWidget *parent = nullptr) : QTabWidget(parent) {
+  Q_OBJECT
+public:
+  TabWidget(QWidget *parent = nullptr) : QTabWidget(parent) {
     setTabsClosable(true);
   }
 
@@ -66,8 +67,9 @@ class TabWidget : public QTabWidget {
 };
 
 class TextEditor : public QMainWindow {
-  Q_OBJECT public : TextEditor(QWidget *parent = nullptr)
-      : QMainWindow(parent) {
+  Q_OBJECT
+public:
+  TextEditor(QWidget *parent = nullptr) : QMainWindow(parent) {
     tabWidget = new TabWidget(this);
     setCentralWidget(tabWidget);
     connect(tabWidget, &TabWidget::tabCloseRequested, this,
@@ -277,25 +279,6 @@ private:
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
-
-  /*
-  VimEditor *editor = new VimEditor();
-  // Create main window.
-  QMainWindow *mainWindow = new QMainWindow();
-  mainWindow->resize(600, 650);
-  mainWindow->move(0, 0);
-  // Create central widget
-  QWidget *centralWidget = new QWidget();
-  mainWindow->setCentralWidget(centralWidget);
-
-  // Create layout
-  QVBoxLayout *layout = new QVBoxLayout();
-  layout->addWidget(editor);
-  centralWidget->setLayout(layout);
-
-
-  mainWindow->show();
-  */
 
   TextEditor *editor = new TextEditor();
   editor->show();
