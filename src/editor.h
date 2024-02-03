@@ -25,6 +25,7 @@
 #include <QObject>
 #include <QPaintEvent>
 #include <QPainter>
+#include <QStandardPaths>
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <fakevim/fakevimhandler.h>
@@ -166,6 +167,59 @@ public:
     layout->addWidget(textEdit);
     layout->addWidget(statusBar);
     setLayout(layout);
+
+    // Connect slots to FakeVimHandler signals.
+    Proxy *proxy = connectSignals(handler, textEdit, statusBar);
+
+    QObject::connect(
+        proxy, &Proxy::handleInput, handler,
+        [this](const QString &text) { this->handler->handleInput(text); });
+
+    // TODO
+    QString fileName = "";
+
+    QObject::connect(proxy, &Proxy::requestSave, proxy,
+                     [proxy, fileName]() { proxy->save(fileName); });
+
+    QObject::connect(proxy, &Proxy::requestSaveAndQuit, proxy,
+                     [proxy, fileName]() {
+                       if (proxy->save(fileName)) {
+                         proxy->cancel(fileName);
+                       }
+                     });
+    QObject::connect(proxy, &Proxy::requestQuit, proxy,
+                     [proxy, fileName]() { proxy->cancel(fileName); });
+
+    // Initialize FakeVimHandler.
+    initHandler(handler);
+
+    // Load vimrc if it exists
+    QString vimrc =
+        QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
+#ifdef Q_OS_WIN
+        + QLatin1String("/_vimrc");
+#else
+        + QLatin1String("/.vimrc");
+#endif
+    if (QFile::exists(vimrc)) {
+      handler->handleCommand(QLatin1String("source ") + vimrc);
+    } else {
+      // Set some Vim options.
+      handler->handleCommand(QLatin1String("set expandtab"));
+      handler->handleCommand(QLatin1String("set shiftwidth=8"));
+      handler->handleCommand(QLatin1String("set tabstop=16"));
+      handler->handleCommand(QLatin1String("set autoindent"));
+      handler->handleCommand(QLatin1String("set smartindent"));
+    }
+
+    // Clear undo and redo queues.
+    clearUndoRedo(textEdit);
+
+    // TODO
+    const QString fileToEdit = "";
+    if (!fileToEdit.isEmpty()) {
+      proxy->openFile(fileToEdit);
+    }
   }
   ~VimEditor() { delete handler; }
 
