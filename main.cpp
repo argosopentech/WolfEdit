@@ -1,18 +1,25 @@
+#include <atomic>
+
 #include <QAction>
 #include <QApplication>
 #include <QCloseEvent>
+#include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QStandardPaths>
 #include <QString>
 #include <QTabWidget>
 #include <QTextEdit>
 #include <QTextStream>
 #include <QVBoxLayout>
-#include <atomic>
+
+#include <fakevim/fakevimhandler.h>
+
+#include "src/editor.h"
 
 static const QString APP_NAME = "WolfEdit";
 
@@ -265,64 +272,28 @@ private:
   }
 };
 
-/*
-    Copyright (c) 2017, Lukas Holecek <hluk@email.cz>
-
-    This file is part of CopyQ.
-
-    CopyQ is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    CopyQ is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with CopyQ.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-#include "src/editor.h"
-#include <fakevim/fakevimhandler.h>
-
-#include <QApplication>
-#include <QFile>
-#include <QMainWindow>
-#include <QStandardPaths>
-
 int main(int argc, char *argv[]) {
-  // QApplication app(argc, argv);
-
-  // QMainWindow *vimClientWindow = VimClient::vim_edit();
-
-  // TextEditor editor;
-  // editor.show();
-
-  // return app.exec();
   QApplication app(argc, argv);
-  const QString fileToEdit = "";
 
-  // QWidget *editor = createEditorWidget();
   VimEditor *editor = new VimEditor();
-
-  FakeVim::Internal::FakeVimHandler *handler = editor->handler;
 
   // Create main window.
   QMainWindow *mainWindow = new QMainWindow();
+  mainWindow->resize(600, 650);
+  mainWindow->move(0, 0);
+
+  // Create central widget
+  QWidget *centralWidget = new QWidget();
+  mainWindow->setCentralWidget(centralWidget);
 
   // Create layout
   QVBoxLayout *layout = new QVBoxLayout();
   layout->addWidget(editor);
-  QWidget *centralWidget = new QWidget();
   centralWidget->setLayout(layout);
-  mainWindow->setCentralWidget(centralWidget);
-  mainWindow->resize(600, 650);
-  mainWindow->move(0, 0);
+
   mainWindow->show();
 
-  app.exec();
+  return app.exec();
 }
 
 #include "main.moc"
