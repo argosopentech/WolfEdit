@@ -11,6 +11,7 @@
 #include <QTabWidget>
 #include <QTextEdit>
 #include <QTextStream>
+#include <QVBoxLayout>
 #include <atomic>
 
 static const QString APP_NAME = "WolfEdit";
@@ -313,9 +314,23 @@ int main(int argc, char *argv[]) {
 
   // Create main window.
   QMainWindow *mainWindow = new QMainWindow();
+  /*
   initMainWindow(
       mainWindow, editor,
       QLatin1String(usePlainTextEdit ? "QPlainTextEdit" : "QTextEdit"));
+  */
+
+  // Create layout
+  QVBoxLayout *layout = new QVBoxLayout();
+  layout->addWidget(editor);
+  QWidget *centralWidget = new QWidget();
+  centralWidget->setLayout(layout);
+  mainWindow->setCentralWidget(centralWidget);
+
+  // mainWindow->setCentralWidget(editor);
+
+  mainWindow->resize(600, 650);
+  mainWindow->show();
 
   // Connect slots to FakeVimHandler signals.
   Proxy *proxy = connectSignals(&handler, mainWindow, editor);
