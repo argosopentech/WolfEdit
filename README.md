@@ -10,6 +10,7 @@ WolfEdit is a work in progress and there are frequent changes and bugs.
 git clone https://github.com/argosopentech/WolfEdit.git
 cd WolfEdit
 ./scripts/build.sh
+./build/WolfEdit
 
 ```
 
