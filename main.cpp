@@ -25,6 +25,15 @@ namespace WolfEdit {
 
 static const QString APP_NAME = "WolfEdit";
 
+static const QString ABOUT_TEXT =
+    "WolfEdit is a free and open source text editor built on the Qt C++ "
+    "framework. WolfEdit is designed to be used by programmers and people that "
+    "frequently edit text files. WolfEdit is focused on simplicity and "
+    "performance so that programmers can customize their editor by modifying "
+    "the source directly and have a snappy user experience.";
+
+static const QString FOOTER_TEXT = "© 2024 Argos Open Technologies, LLC";
+
 class Tab : public QWidget {
   Q_OBJECT
 public:
@@ -237,14 +246,8 @@ private:
 
   // Add this function to handle the "About" action
   void showAboutDialog() {
-    QMessageBox::about(
-        this, tr("About WolfEdit"),
-        tr("WolfEdit is a simple text editor.\n\n"
-           "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-           "Praesent nec tellus id mi vehicula aliquet nec id ante. "
-           "Quisque euismod, justo ut luctus dignissim, est diam suscipit "
-           "orci, "
-           "quis facilisis tortor risus id sapien."));
+    QMessageBox::about(this, tr("About WolfEdit"),
+                       ABOUT_TEXT + "\n\n" + FOOTER_TEXT);
   }
 
   void addTab(QString filePath) {
