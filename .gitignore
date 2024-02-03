@@ -1,8 +1,9 @@
 # WolfEdit
-## Delete build files 
+## Don't track build files 
 CMakeFiles/
 WolfEdit_autogen/
 cmake_install.cmake
+.vscode
 
 ## Ignore changes in third party files
 third_party/
