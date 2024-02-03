@@ -4,6 +4,16 @@ WolfEdit is a free and open source text editor built on the Qt C++ framework. Wo
 
 WolfEdit is a work in progress and there are frequent changes and bugs.
 
+## Install
+Download the Debian Linux Build from the GitHub releases page
+
+https://github.com/argosopentech/WolfEdit/releases
+
+## Run
+```
+WolfEdit
+```
+
 ## Building
 
 ```
