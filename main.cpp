@@ -304,11 +304,12 @@ int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
   const QString fileToEdit = "";
 
-  QWidget *editor = createEditorWidget();
+  // QWidget *editor = createEditorWidget();
+  VimEditor *editor = new VimEditor();
 
   // Create FakeVimHandler instance which will emulate Vim behavior in editor
   // widget.
-  FakeVim::Internal::FakeVimHandler handler(editor, 0);
+  FakeVim::Internal::FakeVimHandler handler(editor->textEdit, 0);
 
   // Create main window.
   QMainWindow *mainWindow = new QMainWindow();
