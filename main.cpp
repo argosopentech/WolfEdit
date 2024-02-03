@@ -307,9 +307,7 @@ int main(int argc, char *argv[]) {
   // QWidget *editor = createEditorWidget();
   VimEditor *editor = new VimEditor();
 
-  // Create FakeVimHandler instance which will emulate Vim behavior in editor
-  // widget.
-  FakeVim::Internal::FakeVimHandler handler(editor->textEdit, 0);
+  FakeVim::Internal::FakeVimHandler *handler = editor->handler;
 
   // Create main window.
   QMainWindow *mainWindow = new QMainWindow();
@@ -328,11 +326,11 @@ int main(int argc, char *argv[]) {
   mainWindow->show();
 
   // Connect slots to FakeVimHandler signals.
-  Proxy *proxy = connectSignals(&handler, mainWindow, editor);
+  Proxy *proxy = connectSignals(handler, mainWindow, editor);
 
   QObject::connect(
-      proxy, &Proxy::handleInput, &handler,
-      [&handler](const QString &text) { handler.handleInput(text); });
+      proxy, &Proxy::handleInput, handler,
+      [handler](const QString &text) { handler->handleInput(text); });
 
   QString fileName = fileToEdit;
   QObject::connect(proxy, &Proxy::requestSave, proxy,
@@ -348,7 +346,7 @@ int main(int argc, char *argv[]) {
                    [proxy, fileName]() { proxy->cancel(fileName); });
 
   // Initialize FakeVimHandler.
-  initHandler(&handler);
+  initHandler(handler);
 
   // Load vimrc if it exists
   QString vimrc = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
@@ -358,14 +356,14 @@ int main(int argc, char *argv[]) {
                   + QLatin1String("/.vimrc");
 #endif
   if (QFile::exists(vimrc)) {
-    handler.handleCommand(QLatin1String("source ") + vimrc);
+    handler->handleCommand(QLatin1String("source ") + vimrc);
   } else {
     // Set some Vim options.
-    handler.handleCommand(QLatin1String("set expandtab"));
-    handler.handleCommand(QLatin1String("set shiftwidth=8"));
-    handler.handleCommand(QLatin1String("set tabstop=16"));
-    handler.handleCommand(QLatin1String("set autoindent"));
-    handler.handleCommand(QLatin1String("set smartindent"));
+    handler->handleCommand(QLatin1String("set expandtab"));
+    handler->handleCommand(QLatin1String("set shiftwidth=8"));
+    handler->handleCommand(QLatin1String("set tabstop=16"));
+    handler->handleCommand(QLatin1String("set autoindent"));
+    handler->handleCommand(QLatin1String("set smartindent"));
   }
 
   // Clear undo and redo queues.

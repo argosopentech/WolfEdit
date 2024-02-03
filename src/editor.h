@@ -24,6 +24,7 @@
 #include <QTextEdit>
 #include <QPaintEvent>
 #include <QVBoxLayout>
+#include <fakevim/fakevimhandler.h>
 
 
 class QMainWindow;
@@ -153,13 +154,18 @@ class VimEditor : public QWidget
 public:
     QTextEdit* textEdit;
     QVBoxLayout* layout;
+FakeVim::Internal::FakeVimHandler *handler;
     VimEditor(QWidget *parent = nullptr){
         layout = new QVBoxLayout(this);
         textEdit = new Editor(this);
         layout->addWidget(textEdit);
         setLayout(layout);
-
         textEdit->setCursorWidth(0);
+   handler =
+      new FakeVim::Internal::FakeVimHandler(this->textEdit, 0);
+    }
+    ~VimEditor() {
+        delete handler;
     }
 
 };
