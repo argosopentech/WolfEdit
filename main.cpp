@@ -24,24 +24,27 @@
 static const QString APP_NAME = "WolfEdit";
 
 class Tab : public QWidget {
-  Q_OBJECT public
-      : Tab(QWidget *parent = nullptr, QTextEdit *textEdit = nullptr)
-      : QWidget(parent) {
-    if (textEdit) {
-      this->textEdit = textEdit;
-    } else {
-      this->textEdit = new QTextEdit(this);
-    }
+  Q_OBJECT
+public:
+  Tab(QWidget *parent = nullptr) : QWidget(parent) {
+    this->vimEditor = new VimEditor(this);
+    this->textEdit = this->vimEditor->textEdit;
     connect(this->textEdit, &QTextEdit::textChanged, this, &Tab::textModified);
     modified = false;
+    // Create layout
+    layout = new QVBoxLayout();
+    layout->addWidget(this->vimEditor);
+    setLayout(layout);
   }
 
 private:
   std::atomic<bool> modified;
 
 public:
+  VimEditor *vimEditor;
   QTextEdit *textEdit;
   QString filePath;
+  QVBoxLayout *layout;
   bool unsavedChanges() const { return isModified(); }
   QString getFilePath() const { return filePath; }
   void setFilePath(const QString &filePath) { this->filePath = filePath; }
@@ -275,13 +278,12 @@ private:
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
 
+  /*
   VimEditor *editor = new VimEditor();
-
   // Create main window.
   QMainWindow *mainWindow = new QMainWindow();
   mainWindow->resize(600, 650);
   mainWindow->move(0, 0);
-
   // Create central widget
   QWidget *centralWidget = new QWidget();
   mainWindow->setCentralWidget(centralWidget);
@@ -291,7 +293,12 @@ int main(int argc, char *argv[]) {
   layout->addWidget(editor);
   centralWidget->setLayout(layout);
 
+
   mainWindow->show();
+  */
+
+  TextEditor *editor = new TextEditor();
+  editor->show();
 
   return app.exec();
 }
