@@ -39,6 +39,7 @@ class Tab : public QWidget {
 public:
   Tab(QWidget *parent = nullptr) : QWidget(parent) {
     this->vimEditor = new VimEditor(this);
+    connect(this->vimEditor, &VimEditor::requestSave, this, &Tab::saveFile);
     this->textEdit = this->vimEditor->textEdit;
     connect(this->textEdit, &QTextEdit::textChanged, this, &Tab::textModified);
     modified = false;
@@ -61,8 +62,12 @@ public:
   bool isModified() const { return modified; }
   void setModified(bool modified) { this->modified = modified; }
 
+signals:
+  void requestSave();
+
 private slots:
   void textModified() { this->modified = true; }
+  void saveFile() { emit requestSave(); }
 };
 
 class TabWidget : public QTabWidget {

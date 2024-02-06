@@ -170,6 +170,9 @@ public:
 
     // Connect slots to FakeVimHandler signals.
     Proxy *proxy = connectSignals(handler, textEdit, statusBar);
+    // Connect requestSave signal and re-emit it as a requestSave signal from a
+    // VimEditor instance
+    QObject::connect(proxy, &Proxy::requestSave, this, &VimEditor::requestSave);
 
     QObject::connect(
         proxy, &Proxy::handleInput, handler,
@@ -222,6 +225,9 @@ public:
     }
   }
   ~VimEditor() { delete handler; }
+
+signals:
+  void requestSave();
 
 private:
   void configureFont() {
