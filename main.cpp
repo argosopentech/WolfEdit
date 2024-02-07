@@ -41,9 +41,9 @@ class Tab : public QWidget {
 public:
   Tab(QWidget *parent = nullptr) : QWidget(parent) {
     this->vimEditor = new VimEditor(this);
-    connect(this->vimEditor, &VimEditor::requestSave, this, &Tab::saveFile);
+    connect(this->vimEditor, &VimEditor::requestSave, this, &Tab::requestSave);
     connect(this->vimEditor, &VimEditor::requestSaveAndQuit, this,
-            &Tab::saveAndQuit);
+            &Tab::requestSaveAndQuit);
     this->textEdit = this->vimEditor->textEdit;
     connect(this->textEdit, &QTextEdit::textChanged, this, &Tab::textModified);
     modified = false;
@@ -72,8 +72,6 @@ signals:
 
 private slots:
   void textModified() { this->modified = true; }
-  void saveFile() { emit requestSave(); }
-  void saveAndQuit() { emit requestSaveAndQuit(); }
 };
 
 class TabWidget : public QTabWidget {
@@ -84,9 +82,6 @@ public:
   }
   Tab *getCurrentTab() const { return qobject_cast<Tab *>(currentWidget()); }
   Tab *getTab(int index) const { return qobject_cast<Tab *>(widget(index)); }
-
-public slots:
-  void saveFile() { emit requestSave(); }
 
 signals:
   void requestSave();
@@ -288,7 +283,7 @@ private:
     tabWidget->setTabToolTip(tabIndex, filePath);
     tabWidget->setCurrentIndex(tabIndex);
     tabWidget->getTab(tabIndex)->setFilePath(filePath);
-    connect(tab, &Tab::requestSave, tabWidget, &TabWidget::saveFile);
+    connect(tab, &Tab::requestSave, tabWidget, &TabWidget::requestSave);
     connect(tab, &Tab::requestSaveAndQuit, tabWidget,
             &TabWidget::requestSaveAndQuit);
   }
