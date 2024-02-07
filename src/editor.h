@@ -178,21 +178,6 @@ public:
         proxy, &Proxy::handleInput, handler,
         [this](const QString &text) { this->handler->handleInput(text); });
 
-    // TODO
-    QString fileName = "";
-
-    QObject::connect(proxy, &Proxy::requestSave, proxy,
-                     [proxy, fileName]() { proxy->save(fileName); });
-
-    QObject::connect(proxy, &Proxy::requestSaveAndQuit, proxy,
-                     [proxy, fileName]() {
-                       if (proxy->save(fileName)) {
-                         proxy->cancel(fileName);
-                       }
-                     });
-    QObject::connect(proxy, &Proxy::requestQuit, proxy,
-                     [proxy, fileName]() { proxy->cancel(fileName); });
-
     // Initialize FakeVimHandler.
     initHandler(handler);
 

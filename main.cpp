@@ -76,10 +76,14 @@ public:
   TabWidget(QWidget *parent = nullptr) : QTabWidget(parent) {
     setTabsClosable(true);
   }
-
   Tab *getCurrentTab() const { return qobject_cast<Tab *>(currentWidget()); }
-
   Tab *getTab(int index) const { return qobject_cast<Tab *>(widget(index)); }
+
+public slots:
+  void saveFile() { emit requestSave(); }
+
+signals:
+  void requestSave();
 };
 
 class WolfEdit : public QMainWindow {
@@ -90,6 +94,7 @@ public:
     setCentralWidget(tabWidget);
     connect(tabWidget, &TabWidget::tabCloseRequested, this,
             &WolfEdit::closeTab);
+    connect(tabWidget, &TabWidget::requestSave, this, &WolfEdit::saveFile);
     addEmptyTab();
     createMenu();
     setWindowTitle(APP_NAME);
@@ -126,7 +131,7 @@ protected:
     QMainWindow::closeEvent(event);
   }
 
-private slots:
+public slots:
   void openFile() {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "",
                                                     tr("All Files (*)"));
@@ -135,6 +140,7 @@ private slots:
 
   void saveFile() {
     if (tabWidget->count() > 0) {
+      // TODO: Saving probably shouldn't necessarily be tied to the current tab
       Tab *currentTab = tabWidget->getCurrentTab();
       if (currentTab) {
         QString currentFilePath = tabWidget->getCurrentTab()->getFilePath();
@@ -268,6 +274,7 @@ private:
     tabWidget->setTabToolTip(tabIndex, filePath);
     tabWidget->setCurrentIndex(tabIndex);
     tabWidget->getTab(tabIndex)->setFilePath(filePath);
+    connect(tab, &Tab::requestSave, tabWidget, &TabWidget::saveFile);
   }
 
   void addEmptyTab() {

@@ -407,32 +407,6 @@ bool Proxy::wantRun(const ExCommand &cmd) {
   return cmd.matches("run", "run") || cmd.matches("make", "make");
 }
 
-bool Proxy::save(const QString &fileName) {
-  if (!hasChanges(fileName))
-    return true;
-
-  QTemporaryFile tmpFile;
-  if (!tmpFile.open()) {
-    QMessageBox::critical(
-        m_widget, tr("FakeVim Error"),
-        tr("Cannot create temporary file: %1").arg(tmpFile.errorString()));
-    return false;
-  }
-
-  QTextStream ts(&tmpFile);
-  ts << content();
-  ts.flush();
-
-  QFile::remove(fileName);
-  if (!QFile::copy(tmpFile.fileName(), fileName)) {
-    QMessageBox::critical(m_widget, tr("FakeVim Error"),
-                          tr("Cannot write to file \"%1\"").arg(fileName));
-    return false;
-  }
-
-  return true;
-}
-
 void Proxy::cancel(const QString &fileName) {
   if (hasChanges(fileName)) {
     QMessageBox::critical(m_widget, tr("FakeVim Warning"),
