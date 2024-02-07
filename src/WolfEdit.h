@@ -124,26 +124,7 @@ protected:
   void closeEvent(QCloseEvent *event) override {
     // Iterate through all tabs and check for unsaved changes
     for (int i = 0; i < tabWidget->count(); i++) {
-      Tab *textEdit = tabWidget->getTab(i);
-      if (textEdit && textEdit->unsavedChanges()) {
-        tabWidget->setCurrentIndex(i);
-
-        // If there are unsaved changes, prompt the user
-        QMessageBox::StandardButton button = QMessageBox::warning(
-            this, "Unsaved Changes",
-            "There are unsaved changes. Do you want to save before closing?",
-            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
-            QMessageBox::Save);
-
-        if (button == QMessageBox::Save) {
-          // Save the changes and continue closing
-          saveFile();
-        } else if (button == QMessageBox::Cancel) {
-          // Cancel the close event
-          event->ignore();
-          return;
-        }
-      }
+      closeTab(i);
     }
 
     // Call the base class closeEvent to allow the event to be processed
@@ -191,7 +172,6 @@ public slots:
   }
 
   void quit() {
-    std::cout << "Quitting" << std::endl;
     int index = tabWidget->getCurrentTabIndex();
     closeTab(index);
   }
@@ -221,7 +201,7 @@ public slots:
   }
 
   void closeTab(int index) {
-    Tab *tab = qobject_cast<Tab *>(tabWidget->widget(index));
+    Tab *tab = tabWidget->getTab(index);
     if (tab && tab->isModified()) {
       // Set the current tab to the one with unsaved changes
       tabWidget->setCurrentIndex(index);
