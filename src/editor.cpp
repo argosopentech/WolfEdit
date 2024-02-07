@@ -1,4 +1,10 @@
 /*
+This file is a modified version of the FakeVim example editor modified to work with the WolfEdit application.
+
+https://github.com/hluk/FakeVim/blob/master/example/editor.cpp
+*/
+
+/*
     Copyright (c) 2017, Lukas Holecek <hluk@email.cz>
 
     This file is part of CopyQ.
