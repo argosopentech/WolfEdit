@@ -297,16 +297,16 @@ private:
   }
 
   void addEmptyTab() {
-    Tab *textEdit = new Tab(this);
-    int tabIndex = tabWidget->addTab(textEdit, "");
+    Tab *tab = new Tab(this);
+    int tabIndex = tabWidget->addTab(tab, "");
     tabWidget->setTabToolTip(tabIndex, "");
   }
 
-  void saveTab(Tab *textEdit, const QString &filePath) {
+  void saveTab(Tab *tab, const QString &filePath) {
     QFile file(filePath);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
       QTextStream out(&file);
-      out << textEdit->textEdit->toPlainText();
+      out << tab->textEdit->toPlainText();
       file.close();
     }
   }
