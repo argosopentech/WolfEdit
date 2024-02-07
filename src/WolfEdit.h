@@ -50,6 +50,7 @@ public:
     layout = new QVBoxLayout(this);
     layout->addWidget(this->vimEditor);
     setLayout(layout);
+    this->vimEditor->textEdit->setFocus();
   }
 
   VimEditor *vimEditor;
