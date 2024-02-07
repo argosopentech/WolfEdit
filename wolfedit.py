@@ -8,5 +8,6 @@ def launch_wolfedit():
     subprocess.Popen([EXEC_PATH])
 
 
+# Launches a WolfEdit subprocess from Python
 if __name__ == "__main__":
     launch_wolfedit()

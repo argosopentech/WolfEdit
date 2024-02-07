@@ -9,10 +9,9 @@ find_package(Qt5 COMPONENTS REQUIRED Core Widgets)
 # Add your source files
 set(SOURCES
     main.cpp
-    #src/main.cpp
+    src/WolfEdit.h
     src/editor.h
     src/editor.cpp
-    # Add other source files here
 )
 
 # Generate MOC files for Qt
