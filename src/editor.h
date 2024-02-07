@@ -173,6 +173,8 @@ public:
     // Connect requestSave signal and re-emit it as a requestSave signal from a
     // VimEditor instance
     QObject::connect(proxy, &Proxy::requestSave, this, &VimEditor::requestSave);
+    connect(proxy, &Proxy::requestSaveAndQuit, this,
+            &VimEditor::requestSaveAndQuit);
 
     QObject::connect(
         proxy, &Proxy::handleInput, handler,
@@ -213,6 +215,7 @@ public:
 
 signals:
   void requestSave();
+  void requestSaveAndQuit();
 
 private:
   void configureFont() {

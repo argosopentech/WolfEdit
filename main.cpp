@@ -21,6 +21,8 @@
 
 #include "src/editor.h"
 
+#include <iostream>
+
 namespace WolfEdit {
 
 static const QString APP_NAME = "WolfEdit";
@@ -40,6 +42,8 @@ public:
   Tab(QWidget *parent = nullptr) : QWidget(parent) {
     this->vimEditor = new VimEditor(this);
     connect(this->vimEditor, &VimEditor::requestSave, this, &Tab::saveFile);
+    connect(this->vimEditor, &VimEditor::requestSaveAndQuit, this,
+            &Tab::saveAndQuit);
     this->textEdit = this->vimEditor->textEdit;
     connect(this->textEdit, &QTextEdit::textChanged, this, &Tab::textModified);
     modified = false;
@@ -64,10 +68,12 @@ public:
 
 signals:
   void requestSave();
+  void requestSaveAndQuit();
 
 private slots:
   void textModified() { this->modified = true; }
   void saveFile() { emit requestSave(); }
+  void saveAndQuit() { emit requestSaveAndQuit(); }
 };
 
 class TabWidget : public QTabWidget {
@@ -84,6 +90,7 @@ public slots:
 
 signals:
   void requestSave();
+  void requestSaveAndQuit();
 };
 
 class WolfEdit : public QMainWindow {
@@ -95,6 +102,8 @@ public:
     connect(tabWidget, &TabWidget::tabCloseRequested, this,
             &WolfEdit::closeTab);
     connect(tabWidget, &TabWidget::requestSave, this, &WolfEdit::saveFile);
+    connect(tabWidget, &TabWidget::requestSaveAndQuit, this,
+            &WolfEdit::saveAndQuit);
     addEmptyTab();
     createMenu();
     setWindowTitle(APP_NAME);
@@ -164,6 +173,11 @@ public slots:
         currentTab->setModified(false);
       }
     }
+  }
+
+  void saveAndQuit() {
+    saveFile();
+    close();
   }
 
   void saveFileAs() {
@@ -275,6 +289,8 @@ private:
     tabWidget->setCurrentIndex(tabIndex);
     tabWidget->getTab(tabIndex)->setFilePath(filePath);
     connect(tab, &Tab::requestSave, tabWidget, &TabWidget::saveFile);
+    connect(tab, &Tab::requestSaveAndQuit, tabWidget,
+            &TabWidget::requestSaveAndQuit);
   }
 
   void addEmptyTab() {
