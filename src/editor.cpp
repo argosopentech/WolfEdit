@@ -192,6 +192,7 @@ void Proxy::updateStatusBar() {
 
 void Proxy::handleExCommand(bool *handled, const ExCommand &cmd) {
   if (wantSaveAndQuit(cmd)) {
+    // TODO save and quit
     emit requestSaveAndQuit(); // :wq
   } else if (wantSave(cmd)) {
     emit requestSave(); // :w
