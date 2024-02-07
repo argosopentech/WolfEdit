@@ -43,6 +43,7 @@ public:
     connect(this->vimEditor, &VimEditor::requestSave, this, &Tab::requestSave);
     connect(this->vimEditor, &VimEditor::requestSaveAndQuit, this,
             &Tab::requestSaveAndQuit);
+    connect(this->vimEditor, &VimEditor::requestQuit, this, &Tab::requestQuit);
     this->textEdit = this->vimEditor->textEdit;
     connect(this->textEdit, &QTextEdit::textChanged, this, &Tab::textModified);
     modified = false;
@@ -65,6 +66,7 @@ public:
 signals:
   void requestSave();
   void requestSaveAndQuit();
+  void requestQuit();
 
 private slots:
   void textModified() { this->modified = true; }
@@ -77,11 +79,13 @@ public:
     setTabsClosable(true);
   }
   Tab *getCurrentTab() const { return qobject_cast<Tab *>(currentWidget()); }
+  int getCurrentTabIndex() const { return currentIndex(); }
   Tab *getTab(int index) const { return qobject_cast<Tab *>(widget(index)); }
 
 signals:
   void requestSave();
   void requestSaveAndQuit();
+  void requestQuit();
 };
 
 class WolfEdit : public QMainWindow {
@@ -95,6 +99,7 @@ public:
     connect(tabWidget, &TabWidget::requestSave, this, &WolfEdit::saveFile);
     connect(tabWidget, &TabWidget::requestSaveAndQuit, this,
             &WolfEdit::saveAndQuit);
+    connect(tabWidget, &TabWidget::requestQuit, this, &WolfEdit::quit);
     addEmptyTab();
     createMenu();
     setWindowTitle(APP_NAME);
@@ -168,7 +173,13 @@ public slots:
 
   void saveAndQuit() {
     saveFile();
-    close();
+    quit();
+  }
+
+  void quit() {
+    std::cout << "Quitting" << std::endl;
+    int index = tabWidget->getCurrentTabIndex();
+    closeTab(index);
   }
 
   void saveFileAs() {
@@ -282,6 +293,7 @@ private:
     connect(tab, &Tab::requestSave, tabWidget, &TabWidget::requestSave);
     connect(tab, &Tab::requestSaveAndQuit, tabWidget,
             &TabWidget::requestSaveAndQuit);
+    connect(tab, &Tab::requestQuit, tabWidget, &TabWidget::requestQuit);
   }
 
   void addEmptyTab() {
