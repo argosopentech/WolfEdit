@@ -63,6 +63,20 @@ public:
   void setModified(bool modified) { this->modified = modified; }
   bool unsavedChanges() const { return isModified(); }
 
+  bool save() {
+    if (filePath.isEmpty()) {
+      return false;
+    }
+    QFile file(filePath);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+      QTextStream out(&file);
+      out << textEdit->toPlainText();
+      file.close();
+      return true;
+    }
+    return false;
+  }
+
 signals:
   void requestSave();
   void requestSaveAndQuit();
@@ -165,7 +179,7 @@ public slots:
           tabWidget->setTabToolTip(tabWidget->currentIndex(), currentFilePath);
         }
 
-        saveTab(currentTab, currentFilePath);
+        currentTab->save();
         currentTab->setModified(false);
       }
     }
@@ -183,25 +197,20 @@ public slots:
   }
 
   void saveFileAs() {
-    if (tabWidget->count() > 0) {
-      Tab *currentTextEdit = tabWidget->getCurrentTab();
-      if (currentTextEdit) {
-        QString currentFilePath = currentTextEdit->getFilePath();
+    Tab *currentTab = tabWidget->getCurrentTab();
+    if (currentTab) {
+      QString currentFilePath = currentTab->getFilePath();
 
-        // Ask for a new file name
-        QString newFilePath = QFileDialog::getSaveFileName(
-            this, tr("Save File As"), "",
-            tr("Text Files (*.txt);;All Files (*)"));
-        if (!newFilePath.isEmpty()) {
-          // Update the tab title and tooltip
-          tabWidget->getCurrentTab()->setFilePath(newFilePath);
-          tabWidget->setTabText(tabWidget->currentIndex(),
-                                QFileInfo(newFilePath).fileName());
-          tabWidget->setTabToolTip(tabWidget->currentIndex(), newFilePath);
-
-          saveTab(currentTextEdit, newFilePath);
-          currentTextEdit->setModified(false);
-        }
+      QString newFilePath = QFileDialog::getSaveFileName(
+          this, tr("Save File As"), currentFilePath,
+          tr("Text Files (*.txt);;All Files (*)"));
+      if (!newFilePath.isEmpty()) {
+        tabWidget->getCurrentTab()->setFilePath(newFilePath);
+        tabWidget->setTabText(tabWidget->currentIndex(),
+                              QFileInfo(newFilePath).fileName());
+        tabWidget->setTabToolTip(tabWidget->currentIndex(), newFilePath);
+        currentTab->save();
+        currentTab->setModified(false);
       }
     }
   }
@@ -300,15 +309,6 @@ private:
     Tab *tab = new Tab(this);
     int tabIndex = tabWidget->addTab(tab, "");
     tabWidget->setTabToolTip(tabIndex, "");
-  }
-
-  void saveTab(Tab *tab, const QString &filePath) {
-    QFile file(filePath);
-    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-      QTextStream out(&file);
-      out << tab->textEdit->toPlainText();
-      file.close();
-    }
   }
 };
 
