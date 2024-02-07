@@ -46,24 +46,21 @@ public:
     this->textEdit = this->vimEditor->textEdit;
     connect(this->textEdit, &QTextEdit::textChanged, this, &Tab::textModified);
     modified = false;
-    layout = new QVBoxLayout();
+    layout = new QVBoxLayout(this);
     layout->addWidget(this->vimEditor);
     setLayout(layout);
   }
 
-private:
-  std::atomic<bool> modified;
-
-public:
   VimEditor *vimEditor;
   QTextEdit *textEdit;
   QString filePath;
   QVBoxLayout *layout;
-  bool unsavedChanges() const { return isModified(); }
+  std::atomic<bool> modified;
   QString getFilePath() const { return filePath; }
   void setFilePath(const QString &filePath) { this->filePath = filePath; }
   bool isModified() const { return modified; }
   void setModified(bool modified) { this->modified = modified; }
+  bool unsavedChanges() const { return isModified(); }
 
 signals:
   void requestSave();
