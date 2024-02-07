@@ -122,11 +122,7 @@ public:
 
 protected:
   void closeEvent(QCloseEvent *event) override {
-    // Iterate through all tabs and check for unsaved changes
-    for (int i = 0; i < tabWidget->count(); i++) {
-      closeTab(i);
-    }
-
+    quit();
     // Call the base class closeEvent to allow the event to be processed
     QMainWindow::closeEvent(event);
   }
@@ -172,8 +168,10 @@ public slots:
   }
 
   void quit() {
-    int index = tabWidget->getCurrentTabIndex();
-    closeTab(index);
+    // Iterate through all tabs and check for unsaved changes
+    for (int i = 0; i < tabWidget->count(); i++) {
+      closeTab(i);
+    }
   }
 
   void saveFileAs() {
