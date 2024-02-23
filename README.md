@@ -16,17 +16,17 @@ WolfEdit
 
 ## Building
 
+##### Install Qt
+```
+sudo apt install qt5-default
+
+```
+
 ```
 git clone https://github.com/argosopentech/WolfEdit.git
 cd WolfEdit
 ./scripts/build.sh
 ./build/WolfEdit
-
-```
-
-##### Install Qt
-```
-sudo apt install qt5-default
 
 ```
 
