@@ -9,11 +9,6 @@ Download the Debian Linux Build from the GitHub releases page
 
 https://github.com/argosopentech/WolfEdit/releases
 
-## Run
-```
-WolfEdit
-```
-
 ## Building
 
 ##### Install Qt
